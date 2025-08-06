@@ -9,10 +9,12 @@ class AuthService {
 
   async validateToken(token) {
     try {
-      const response = await axios.post(
-        `${this.authServiceUrl}/api/validate-token`, 
-        { token }, 
-        { timeout: this.timeout }
+      const response = await axios.get(
+        `${this.authServiceUrl}/auth/check`,
+        { 
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: this.timeout 
+        }
       );
       
       return {
@@ -61,9 +63,8 @@ class AuthService {
 
   async validateSessionCookie(req) {
     try {
-      const response = await axios.post(
-        `${this.authServiceUrl}/auth/validate-session-cookie`,
-        {},
+      const response = await axios.get(
+        `${this.authServiceUrl}/auth/check`,
         {
           headers: {
             'Cookie': req.headers.cookie || '',

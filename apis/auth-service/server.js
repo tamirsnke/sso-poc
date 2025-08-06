@@ -3,6 +3,7 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
+const passport = require('passport');
 
 // Import configuration
 const config = require('./src/config');
@@ -46,6 +47,10 @@ app.use(express.json({ limit: '10mb' }));
 // Session middleware
 app.use(sessionMiddleware);
 
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Request logging
 app.use(requestLogger);
 
@@ -54,7 +59,9 @@ app.use('/', routes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
-app.use('*', notFoundHandler);
+// Do NOT register notFoundHandler here for proxied routes!
+// Only use notFoundHandler for truly unmatched routes, e.g.:
+// app.use((req, res, next) => notFoundHandler(req, res, next));
 
 // Start server
 const PORT = config.port;
@@ -62,6 +69,8 @@ const HTTPS_PORT = config.httpsPort;
 
 // Create HTTP server
 const httpServer = http.createServer(app);
+httpServer.timeout = 30000; // 30 seconds
+httpServer.keepAliveTimeout = 30000;
 httpServer.listen(PORT, () => {
   logger.info(`Auth Service HTTP listening on port ${PORT}`);
   logger.info(`Environment: ${config.nodeEnv}`);
