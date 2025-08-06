@@ -1,13 +1,13 @@
 const express = require('express');
 const authRoutes = require('./auth');
-const microservicesRoutes = require('./microservices');
+const gatewayRoutes = require('./gateway');
 const healthRoutes = require('./health');
 
 const router = express.Router();
 
-// Mount route modules
+// Mount routes
+router.use('/', gatewayRoutes); // Move this before other routes
 router.use('/auth', authRoutes);
-router.use('/api', microservicesRoutes);
 router.use('/', healthRoutes);
 
 // Root endpoint
